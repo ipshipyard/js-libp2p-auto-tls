@@ -8,9 +8,9 @@
  * The node must be configured with a listener for at least one of the following
  * transports:
  *
- * * TCP or WS or WSS, (along with the Yamux multiplexer and TLS or Noise encryption)
- * * QUIC-v1
- * * WebTransport
+ * TCP or WS or WSS, (along with the Yamux multiplexer and TLS or Noise encryption)
+ * QUIC-v1
+ * WebTransport
  *
  * It also requires the Identify protocol.
  *
@@ -60,6 +60,7 @@
  */
 
 import { AutoTLS as AutoTLSClass } from './auto-tls.js'
+import type { HTTP } from '@libp2p/http'
 import type { PeerId, PrivateKey, ComponentLogger, Libp2pEvents, TypedEventTarget, TLSCertificate, NodeInfo } from '@libp2p/interface'
 import type { AddressManager } from '@libp2p/interface-internal'
 import type { Keychain } from '@libp2p/keychain'
@@ -74,6 +75,7 @@ export interface AutoTLSComponents {
   keychain: Keychain
   datastore: Datastore
   nodeInfo: NodeInfo
+  http: HTTP
 }
 
 export interface AutoTLSInit {

@@ -1,6 +1,6 @@
-import { ClientAuth } from '@libp2p/http-fetch/auth'
+import { peerIdAuth } from '@libp2p/http/middleware'
 import { serviceCapabilities, serviceDependencies, setMaxListeners, start, stop } from '@libp2p/interface'
-import { debounce } from '@libp2p/utils/debounce'
+import { debounce } from '@libp2p/utils'
 import { X509Certificate } from '@peculiar/x509'
 import * as acme from 'acme-client'
 import { anySignal } from 'any-signal'
@@ -15,7 +15,7 @@ import { DomainMapper } from './domain-mapper.js'
 import { createCsr, importFromPem, loadOrCreateKey, supportedAddressesFilter } from './utils.js'
 import type { AutoTLSComponents, AutoTLSInit, AutoTLS as AutoTLSInterface } from './index.js'
 import type { Logger, AbortOptions } from '@libp2p/interface'
-import type { DebouncedFunction } from '@libp2p/utils/debounce'
+import type { DebouncedFunction } from '@libp2p/utils'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
 const RETRY_DELAY = 5_000
@@ -34,7 +34,6 @@ export class AutoTLS implements AutoTLSInterface {
   private readonly forgeEndpoint: URL
   private readonly forgeDomain: string
   private readonly acmeDirectory: URL
-  private readonly clientAuth: ClientAuth
   private readonly provisionTimeout: number
   private readonly provisionRequestTimeout: number
   private readonly renewThreshold: number
@@ -69,7 +68,6 @@ export class AutoTLS implements AutoTLSInterface {
     this.certificatePrivateKeyBits = init.certificatePrivateKeyBits ?? DEFAULT_CERTIFICATE_PRIVATE_KEY_BITS
     this.certificateDatastoreKey = init.certificateDatastoreKey ?? DEFAULT_CERTIFICATE_DATASTORE_KEY
     this.autoConfirmAddress = init.autoConfirmAddress ?? DEFAULT_AUTO_CONFIRM_ADDRESS
-    this.clientAuth = new ClientAuth(this.components.privateKey)
     this.started = false
     this.fetching = false
     this.onSelfPeerUpdate = debounce(this._onSelfPeerUpdate.bind(this), init.provisionDelay ?? DEFAULT_PROVISION_DELAY)
@@ -338,12 +336,15 @@ export class AutoTLS implements AutoTLSInterface {
     this.log('asking %s to respond to the acme DNS challenge on our behalf', endpoint)
     this.log('dialback public addresses: %s', addresses.join(', '))
 
-    const response = await this.clientAuth.authenticatedFetch(endpoint, {
+    const response = await this.components.http.fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': this.components.nodeInfo.userAgent
       },
+      middleware: [
+        peerIdAuth()
+      ],
       body: JSON.stringify({
         Value: keyAuthorization,
         Addresses: addresses

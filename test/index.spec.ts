@@ -6,7 +6,7 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import { MemoryDatastore } from 'datastore-core'
 import delay from 'delay'
-import { Key, type Datastore } from 'interface-datastore'
+import { Key } from 'interface-datastore'
 import { pEvent } from 'p-event'
 import Sinon from 'sinon'
 import { stubInterface } from 'sinon-ts'
@@ -15,9 +15,11 @@ import { AutoTLS } from '../src/auto-tls.js'
 import { DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME } from '../src/constants.js'
 import { importFromPem } from '../src/utils.js'
 import { CERT, CERT_FOR_OTHER_KEY, EXPIRED_CERT, INVALID_CERT, PRIVATE_KEY_PEM } from './fixtures/cert.js'
+import type { HTTP } from '@libp2p/http'
 import type { ComponentLogger, Libp2pEvents, NodeInfo, Peer, PeerId, PrivateKey, RSAPrivateKey, TypedEventTarget } from '@libp2p/interface'
 import type { AddressManager, NodeAddress } from '@libp2p/interface-internal'
 import type { Keychain } from '@libp2p/keychain'
+import type { Datastore } from 'interface-datastore'
 import type { StubbedInstance } from 'sinon-ts'
 
 interface StubbedAutoTLSComponents {
@@ -29,6 +31,7 @@ interface StubbedAutoTLSComponents {
   keychain: StubbedInstance<Keychain>
   datastore: Datastore
   nodeInfo: NodeInfo
+  http: HTTP
 }
 
 describe('auto-tls', () => {
@@ -52,7 +55,8 @@ describe('auto-tls', () => {
         name: 'name',
         version: 'version',
         userAgent: 'userAgent'
-      }
+      },
+      http: stubInterface<HTTP>()
     }
 
     // a mixture of LAN and public addresses

@@ -2,9 +2,8 @@ import { Buffer } from 'node:buffer'
 import { createPrivateKey, createPublicKey } from 'node:crypto'
 import { isIPv4, isIPv6 } from '@chainsafe/is-ip'
 import { generateKeyPair, privateKeyFromRaw } from '@libp2p/crypto/keys'
-import { isLoopback } from '@libp2p/utils/multiaddr/is-loopback'
-import { isPrivate } from '@libp2p/utils/multiaddr/is-private'
-import { IP, QUICV1, TCP, WebSockets, WebSocketsSecure, WebTransport } from '@multiformats/multiaddr-matcher'
+import { getNetConfig, isLoopback, isPrivate } from '@libp2p/utils'
+import { IP, QUIC_V1, TCP, WebSockets, WebSocketsSecure, WebTransport } from '@multiformats/multiaddr-matcher'
 import { KeyUsageFlags, KeyUsagesExtension, PemConverter, Pkcs10CertificateRequestGenerator, SubjectAlternativeNameExtension, cryptoProvider } from '@peculiar/x509'
 import { IncorrectKeyType } from './errors.js'
 import type { RSAPrivateKey } from '@libp2p/interface'
@@ -81,7 +80,7 @@ export function supportedAddressesFilter (ma: Multiaddr): boolean {
     TCP.exactMatch(ma) ||
     WebSockets.exactMatch(ma) ||
     WebSocketsSecure.exactMatch(ma) ||
-    QUICV1.exactMatch(ma) ||
+    QUIC_V1.exactMatch(ma) ||
     WebTransport.exactMatch(ma)
   )
 }
@@ -91,7 +90,7 @@ export function getPublicIps (addrs: Multiaddr[]): Set<string> {
 
   addrs.filter(supportedAddressesFilter)
     .forEach(ma => {
-      const options = ma.toOptions()
+      const options = getNetConfig(ma)
 
       if (isIPv4(options.host) || isIPv6(options.host)) {
         output.add(options.host)
@@ -124,7 +123,7 @@ export async function createCsr (domain: string, keyPem: string): Promise<string
 
   const extensions = [
     /* https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.3 */
-    new KeyUsagesExtension(KeyUsageFlags.digitalSignature | KeyUsageFlags.keyEncipherment), // eslint-disable-line no-bitwise
+    new KeyUsagesExtension(KeyUsageFlags.digitalSignature | KeyUsageFlags.keyEncipherment),
 
     /* https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.6 */
     new SubjectAlternativeNameExtension([{ type: 'dns', value: domain }])
