@@ -1,3 +1,9 @@
+## [2.0.1](https://github.com/ipshipyard/js-libp2p-auto-tls/compare/v2.0.0...v2.0.1) (2025-10-03)
+
+### Bug Fixes
+
+* update datastore deps ([1c98e11](https://github.com/ipshipyard/js-libp2p-auto-tls/commit/1c98e11ca226999b1d8e928ec909f49c232ca52b))
+
 ## [2.0.0](https://github.com/ipshipyard/js-libp2p-auto-tls/compare/v1.0.0...v2.0.0) (2025-10-02)
 
 ### ⚠ BREAKING CHANGES

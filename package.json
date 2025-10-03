@@ -1,6 +1,6 @@
 {
   "name": "@ipshipyard/libp2p-auto-tls",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Automatically acquire a <peerId>.libp2p.direct TLS certificate",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipshipyard/js-libp2p-auto-tls#readme",
