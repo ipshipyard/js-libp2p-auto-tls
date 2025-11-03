@@ -145,7 +145,7 @@
     "@peculiar/x509": "^1.12.3",
     "acme-client": "^5.4.0",
     "any-signal": "^4.1.1",
-    "delay": "^6.0.0",
+    "delay": "^7.0.0",
     "interface-datastore": "^9.0.2",
     "multiformats": "^13.3.1",
     "uint8arrays": "^5.1.0"
