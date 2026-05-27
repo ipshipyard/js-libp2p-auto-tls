@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+import { PublicKeyMessage } from '@ipshipyard/crypto/pb'
 import { peerIdAuth } from '@libp2p/http/middleware'
 import { serviceCapabilities, serviceDependencies, setMaxListeners, start, stop } from '@libp2p/interface'
 import { debounce } from '@libp2p/utils'
@@ -10,10 +12,11 @@ import { base36 } from 'multiformats/bases/base36'
 import { equals as uint8ArrayEquals } from 'uint8arrays/equals'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { DEFAULT_ACCOUNT_PRIVATE_KEY_BITS, DEFAULT_ACCOUNT_PRIVATE_KEY_NAME, DEFAULT_ACME_DIRECTORY, DEFAULT_AUTO_CONFIRM_ADDRESS, DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_BITS, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME, DEFAULT_FORGE_DOMAIN, DEFAULT_FORGE_ENDPOINT, DEFAULT_PROVISION_DELAY, DEFAULT_PROVISION_REQUEST_TIMEOUT, DEFAULT_PROVISION_TIMEOUT, DEFAULT_RENEWAL_THRESHOLD } from './constants.js'
-import { DomainMapper } from './domain-mapper.js'
-import { createCsr, importFromPem, loadOrCreateKey, supportedAddressesFilter } from './utils.js'
-import type { AutoTLSComponents, AutoTLSInit, AutoTLS as AutoTLSInterface } from './index.js'
+import { withArrayBuffer } from 'uint8arrays/with-array-buffer'
+import { DEFAULT_ACCOUNT_PRIVATE_KEY_BITS, DEFAULT_ACCOUNT_PRIVATE_KEY_NAME, DEFAULT_ACME_DIRECTORY, DEFAULT_AUTO_CONFIRM_ADDRESS, DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_BITS, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME, DEFAULT_FORGE_DOMAIN, DEFAULT_FORGE_ENDPOINT, DEFAULT_PROVISION_DELAY, DEFAULT_PROVISION_REQUEST_TIMEOUT, DEFAULT_PROVISION_TIMEOUT, DEFAULT_RENEWAL_THRESHOLD } from './constants.ts'
+import { DomainMapper } from './domain-mapper.ts'
+import { createCsr, importFromPem, loadOrCreateKey, supportedAddressesFilter } from './utils.ts'
+import type { AutoTLSComponents, AutoTLSInit, AutoTLS as AutoTLSInterface } from './index.ts'
 import type { Logger, AbortOptions } from '@libp2p/interface'
 import type { DebouncedFunction } from '@libp2p/utils'
 import type { Multiaddr } from '@multiformats/multiaddr'
@@ -92,7 +95,7 @@ export class AutoTLS implements AutoTLSInterface {
   get [serviceDependencies] (): string[] {
     const dependencies = [
       '@libp2p/identify',
-      '@libp2p/keychain'
+      '@ipshipyard/keychain'
     ]
 
     if (!this.autoConfirmAddress) {
@@ -260,9 +263,15 @@ export class AutoTLS implements AutoTLSInterface {
       }
 
       try {
-        const key = importFromPem(certificatePrivateKey)
+        const key = await importFromPem(certificatePrivateKey)
         const certPublicKeyThumbprint = await cert.publicKey.getThumbprint()
-        const keyPublicKeyThumbprint = await crypto.subtle.digest('SHA-1', key.publicKey.raw)
+        const pb = PublicKeyMessage.decode(key.publicKey.toProtobuf())
+
+        if (pb.Data == null) {
+          throw new Error('Data field was missing from public key protobuf')
+        }
+
+        const keyPublicKeyThumbprint = await crypto.subtle.digest('SHA-1', withArrayBuffer(pb.Data))
 
         if (!uint8ArrayEquals(
           new Uint8Array(certPublicKeyThumbprint, 0, certPublicKeyThumbprint.byteLength),

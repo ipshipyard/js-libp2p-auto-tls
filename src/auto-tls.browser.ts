@@ -1,4 +1,4 @@
-import type { AutoTLS as AutoTLSInterface } from './index.js'
+import type { AutoTLS as AutoTLSInterface } from './index.ts'
 import type { TLSCertificate } from '@libp2p/interface'
 
 export class AutoTLS implements AutoTLSInterface {

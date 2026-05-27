@@ -1,16 +1,20 @@
 import { createPrivateKey } from 'node:crypto'
-import { generateKeyPair } from '@libp2p/crypto/keys'
+import { rsaCrypto } from '@ipshipyard/crypto'
+import { PrivateKeyMessage, PublicKeyMessage } from '@ipshipyard/crypto/pb'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
+import { withArrayBuffer } from 'uint8arrays'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.js'
-import { PRIVATE_KEY_PEM } from './fixtures/cert.js'
+import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.ts'
+import { PRIVATE_KEY_PEM } from './fixtures/cert.ts'
 
 describe('utils', () => {
   describe('formatAsPem', () => {
     it('should transform a key to pem', async () => {
       const bits = 1024
-      const key = await generateKeyPair('RSA', bits)
+      const key = await rsaCrypto().generatePrivateKey({
+        bits
+      })
       const pem = formatAsPem(key)
 
       const keyObject = createPrivateKey({
@@ -22,7 +26,7 @@ describe('utils', () => {
       expect(keyObject.asymmetricKeyType).to.equal('rsa')
       expect(keyObject.asymmetricKeyDetails?.modulusLength).to.equal(bits)
 
-      expect(key.raw).to.equalBytes(keyObject.export({
+      expect(PrivateKeyMessage.decode(key.toProtobuf()).Data).to.equalBytes(keyObject.export({
         format: 'der',
         type: 'pkcs1'
       }))
@@ -31,8 +35,8 @@ describe('utils', () => {
 
   describe('importFromPem', () => {
     it('should read a key from pem', async () => {
-      const key = importFromPem(PRIVATE_KEY_PEM)
-      const digest = await crypto.subtle.digest('SHA-1', key.publicKey.raw)
+      const key = await importFromPem(PRIVATE_KEY_PEM)
+      const digest = await crypto.subtle.digest('SHA-1', withArrayBuffer(PublicKeyMessage.decode(key.publicKey.toProtobuf()).Data ?? new Uint8Array(0)))
       const thumbprint = uint8ArrayToString(new Uint8Array(digest, 0, digest.byteLength), 'base16')
 
       expect(key.type).to.equal('RSA')

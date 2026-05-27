@@ -59,15 +59,15 @@
  * ```
  */
 
-import { AutoTLS as AutoTLSClass } from './auto-tls.js'
+import { AutoTLS as AutoTLSClass } from './auto-tls.ts'
+import type { Keychain } from '@ipshipyard/keychain'
 import type { HTTP } from '@libp2p/http'
-import type { PeerId, PrivateKey, ComponentLogger, Libp2pEvents, TypedEventTarget, TLSCertificate, NodeInfo } from '@libp2p/interface'
+import type { PeerId, ComponentLogger, Libp2pEvents, TypedEventTarget, TLSCertificate, NodeInfo } from '@libp2p/interface'
 import type { AddressManager } from '@libp2p/interface-internal'
-import type { Keychain } from '@libp2p/keychain'
 import type { Datastore } from 'interface-datastore'
 
 export interface AutoTLSComponents {
-  privateKey: PrivateKey
+  // privateKey: PrivateKey
   peerId: PeerId
   logger: ComponentLogger
   addressManager: AddressManager

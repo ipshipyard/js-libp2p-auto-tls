@@ -40,9 +40,9 @@ It also requires the Identify protocol.
 ```TypeScript
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
+import { keychain } from '@ipshipyard/keychain'
 import { autoTLS } from '@ipshipyard/libp2p-auto-tls'
 import { identify } from '@libp2p/identify'
-import { keychain } from '@libp2p/keychain'
 import { webSockets } from '@libp2p/websockets'
 import { uPnPNAT } from '@libp2p/upnp-nat'
 import { createLibp2p } from 'libp2p'

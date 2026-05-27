@@ -1,20 +1,22 @@
+import 'reflect-metadata'
 import { Buffer } from 'node:buffer'
 import { createPrivateKey, createPublicKey } from 'node:crypto'
 import { isIPv4, isIPv6 } from '@chainsafe/is-ip'
-import { generateKeyPair, privateKeyFromRaw } from '@libp2p/crypto/keys'
+import { rsaCrypto } from '@ipshipyard/crypto'
+import { PrivateKeyMessage } from '@ipshipyard/crypto/pb'
 import { getNetConfig, isLoopback, isPrivate } from '@libp2p/utils'
 import { IP, QUIC_V1, TCP, WebSockets, WebSocketsSecure, WebTransport } from '@multiformats/multiaddr-matcher'
 import { KeyUsageFlags, KeyUsagesExtension, PemConverter, Pkcs10CertificateRequestGenerator, SubjectAlternativeNameExtension, cryptoProvider } from '@peculiar/x509'
-import { IncorrectKeyType } from './errors.js'
-import type { RSAPrivateKey } from '@libp2p/interface'
-import type { Keychain } from '@libp2p/keychain'
+import { IncorrectKeyType } from './errors.ts'
+import type { PrivateKey } from '@ipshipyard/crypto'
+import type { Keychain } from '@ipshipyard/keychain'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
 /**
  * Loads a key and returns it in PCKS#1 DER in PEM format
  */
-export async function loadOrCreateKey (keychain: Keychain, name: string, size: number): Promise<string> {
-  let key: RSAPrivateKey
+export async function loadOrCreateKey (keychain: Keychain, name: string, bits: number): Promise<string> {
+  let key: PrivateKey
 
   try {
     const storedKey = await keychain.exportKey(name)
@@ -29,8 +31,10 @@ export async function loadOrCreateKey (keychain: Keychain, name: string, size: n
       throw err
     }
 
-    key = await generateKeyPair('RSA', size)
-    await keychain.importKey(name, key)
+    key = await keychain.generateKey(name, {
+      type: 'RSA',
+      bits
+    })
   }
 
   return formatAsPem(key)
@@ -40,17 +44,20 @@ export function toBuffer (uint8Array: Uint8Array): Buffer {
   return Buffer.from(uint8Array.buffer, uint8Array.byteOffset, uint8Array.byteLength)
 }
 
-export function formatAsPem (key: RSAPrivateKey): string {
+export function formatAsPem (key: PrivateKey): string {
   const obj = createPrivateKey({
-    format: 'der',
-    key: toBuffer(key.raw),
-    type: 'pkcs1'
+    format: 'jwk',
+    // @ts-expect-error the key is there
+    key: key.jwk
   })
 
-  return obj.export({ format: 'pem', type: 'pkcs8' }).toString()
+  return obj.export({
+    format: 'pem',
+    type: 'pkcs8'
+  }).toString()
 }
 
-export function importFromPem (pem: string): RSAPrivateKey {
+export async function importFromPem (pem: string): Promise<PrivateKey> {
   const obj = createPrivateKey({
     format: 'pem',
     key: pem
@@ -60,7 +67,12 @@ export function importFromPem (pem: string): RSAPrivateKey {
     type: 'pkcs1'
   })
 
-  const key = privateKeyFromRaw(der)
+  const pb = PrivateKeyMessage.encode({
+    Type: 0,
+    Data: der
+  })
+
+  const key = await rsaCrypto().privateKeyFromProtobuf(pb)
 
   if (key.type !== 'RSA') {
     throw new IncorrectKeyType(`Got incorrect key type - ${key.type}`)

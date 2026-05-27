@@ -1,29 +1,30 @@
-import { generateKeyPair } from '@libp2p/crypto/keys'
+import { ed25519Crypto } from '@ipshipyard/crypto'
 import { TypedEventEmitter, start, stop } from '@libp2p/interface'
-import { defaultLogger } from '@libp2p/logger'
-import { peerIdFromPrivateKey } from '@libp2p/peer-id'
+import { peerIdFromString } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
+import { defaultLogger } from 'birnam'
 import { MemoryDatastore } from 'datastore-core'
 import delay from 'delay'
 import { Key } from 'interface-datastore'
+import { base58btc } from 'multiformats/bases/base58'
 import { pEvent } from 'p-event'
 import Sinon from 'sinon'
 import { stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { AutoTLS } from '../src/auto-tls.js'
-import { DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME } from '../src/constants.js'
-import { importFromPem } from '../src/utils.js'
-import { CERT, CERT_FOR_OTHER_KEY, EXPIRED_CERT, INVALID_CERT, PRIVATE_KEY_PEM } from './fixtures/cert.js'
+import { AutoTLS } from '../src/auto-tls.ts'
+import { DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME } from '../src/constants.ts'
+import { importFromPem } from '../src/utils.ts'
+import { CERT, CERT_FOR_OTHER_KEY, EXPIRED_CERT, INVALID_CERT, PRIVATE_KEY_PEM } from './fixtures/cert.ts'
+import type { PrivateKey } from '@ipshipyard/crypto'
+import type { Keychain } from '@ipshipyard/keychain'
 import type { HTTP } from '@libp2p/http'
-import type { ComponentLogger, Libp2pEvents, NodeInfo, Peer, PeerId, PrivateKey, RSAPrivateKey, TypedEventTarget } from '@libp2p/interface'
+import type { ComponentLogger, Libp2pEvents, NodeInfo, Peer, PeerId, TypedEventTarget } from '@libp2p/interface'
 import type { AddressManager, NodeAddress } from '@libp2p/interface-internal'
-import type { Keychain } from '@libp2p/keychain'
 import type { Datastore } from 'interface-datastore'
 import type { StubbedInstance } from 'sinon-ts'
 
 interface StubbedAutoTLSComponents {
-  privateKey: PrivateKey
   peerId: PeerId
   logger: ComponentLogger
   addressManager: StubbedInstance<AddressManager>
@@ -37,15 +38,14 @@ interface StubbedAutoTLSComponents {
 describe('auto-tls', () => {
   let autoTLS: AutoTLS
   let components: StubbedAutoTLSComponents
-  let certificateKey: RSAPrivateKey
+  let certificateKey: PrivateKey
 
   beforeEach(async () => {
-    const privateKey = await generateKeyPair('Ed25519')
-    certificateKey = importFromPem(PRIVATE_KEY_PEM)
+    const privateKey = await ed25519Crypto().generatePrivateKey()
+    certificateKey = await importFromPem(PRIVATE_KEY_PEM)
 
     components = {
-      privateKey,
-      peerId: peerIdFromPrivateKey(privateKey),
+      peerId: peerIdFromString(base58btc.encode(privateKey.publicKey.toMultihash().bytes).substring(1)),
       logger: defaultLogger(),
       addressManager: stubInterface<AddressManager>(),
       events: new TypedEventEmitter(),
