@@ -144,7 +144,7 @@
     "@libp2p/utils": "^7.0.4",
     "@multiformats/multiaddr": "^13.0.1",
     "@multiformats/multiaddr-matcher": "^3.0.1",
-    "@peculiar/x509": "^1.12.3",
+    "@peculiar/x509": "^2.0.0",
     "acme-client": "^5.4.0",
     "any-signal": "^4.1.1",
     "delay": "^6.0.0",
