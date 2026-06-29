@@ -1,6 +1,6 @@
 import { isIPv4, isIPv6 } from '@chainsafe/is-ip'
 import { multiaddr } from '@multiformats/multiaddr'
-import { getPublicIps } from './utils.js'
+import { getPublicIps } from './utils.ts'
 import type { ComponentLogger, Libp2pEvents, Logger, TypedEventTarget } from '@libp2p/interface'
 import type { AddressManager } from '@libp2p/interface-internal'
 

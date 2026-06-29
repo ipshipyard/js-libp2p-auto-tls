@@ -3,8 +3,9 @@ import { generateKeyPair } from '@libp2p/crypto/keys'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.js'
-import { PRIVATE_KEY_PEM } from './fixtures/cert.js'
+import { withArrayBuffer } from 'uint8arrays/with-array-buffer'
+import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.ts'
+import { PRIVATE_KEY_PEM } from './fixtures/cert.ts'
 
 describe('utils', () => {
   describe('formatAsPem', () => {
@@ -32,7 +33,7 @@ describe('utils', () => {
   describe('importFromPem', () => {
     it('should read a key from pem', async () => {
       const key = importFromPem(PRIVATE_KEY_PEM)
-      const digest = await crypto.subtle.digest('SHA-1', key.publicKey.raw)
+      const digest = await crypto.subtle.digest('SHA-1', withArrayBuffer(key.publicKey.raw))
       const thumbprint = uint8ArrayToString(new Uint8Array(digest, 0, digest.byteLength), 'base16')
 
       expect(key.type).to.equal('RSA')

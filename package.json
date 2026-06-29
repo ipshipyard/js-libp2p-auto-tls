@@ -26,14 +26,8 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js"
-    }
-  },
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "project": true,
-      "sourceType": "module"
+      "import": "./dist/src/index.js",
+      "module-sync": "./dist/src/index.js"
     }
   },
   "release": {
@@ -118,7 +112,15 @@
       "@semantic-release/changelog",
       "@semantic-release/npm",
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json"
+          ]
+        }
+      ]
     ]
   },
   "scripts": {
@@ -148,13 +150,13 @@
     "delay": "^6.0.0",
     "interface-datastore": "^9.0.2",
     "multiformats": "^13.3.1",
-    "uint8arrays": "^5.1.0"
+    "uint8arrays": "^6.1.1"
   },
   "devDependencies": {
     "@libp2p/logger": "^6.0.4",
     "@libp2p/peer-id": "^6.0.3",
     "@types/sinon": "^17.0.3",
-    "aegir": "^47.0.22",
+    "aegir": "^48.1.1",
     "datastore-core": "^11.0.2",
     "p-event": "^7.0.0",
     "sinon": "^21.0.0",
