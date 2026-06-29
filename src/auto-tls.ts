@@ -10,6 +10,7 @@ import { base36 } from 'multiformats/bases/base36'
 import { equals as uint8ArrayEquals } from 'uint8arrays/equals'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { withArrayBuffer } from 'uint8arrays/with-array-buffer'
 import { DEFAULT_ACCOUNT_PRIVATE_KEY_BITS, DEFAULT_ACCOUNT_PRIVATE_KEY_NAME, DEFAULT_ACME_DIRECTORY, DEFAULT_AUTO_CONFIRM_ADDRESS, DEFAULT_CERTIFICATE_DATASTORE_KEY, DEFAULT_CERTIFICATE_PRIVATE_KEY_BITS, DEFAULT_CERTIFICATE_PRIVATE_KEY_NAME, DEFAULT_FORGE_DOMAIN, DEFAULT_FORGE_ENDPOINT, DEFAULT_PROVISION_DELAY, DEFAULT_PROVISION_REQUEST_TIMEOUT, DEFAULT_PROVISION_TIMEOUT, DEFAULT_RENEWAL_THRESHOLD } from './constants.ts'
 import { DomainMapper } from './domain-mapper.ts'
 import { createCsr, importFromPem, loadOrCreateKey, supportedAddressesFilter } from './utils.ts'
@@ -262,7 +263,7 @@ export class AutoTLS implements AutoTLSInterface {
       try {
         const key = importFromPem(certificatePrivateKey)
         const certPublicKeyThumbprint = await cert.publicKey.getThumbprint()
-        const keyPublicKeyThumbprint = await crypto.subtle.digest('SHA-1', key.publicKey.raw)
+        const keyPublicKeyThumbprint = await crypto.subtle.digest('SHA-1', withArrayBuffer(key.publicKey.raw))
 
         if (!uint8ArrayEquals(
           new Uint8Array(certPublicKeyThumbprint, 0, certPublicKeyThumbprint.byteLength),
