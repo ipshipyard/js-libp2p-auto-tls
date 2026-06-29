@@ -3,8 +3,8 @@ import { generateKeyPair } from '@libp2p/crypto/keys'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.js'
-import { PRIVATE_KEY_PEM } from './fixtures/cert.js'
+import { formatAsPem, getPublicIps, importFromPem } from '../src/utils.ts'
+import { PRIVATE_KEY_PEM } from './fixtures/cert.ts'
 
 describe('utils', () => {
   describe('formatAsPem', () => {

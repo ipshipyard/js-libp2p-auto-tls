@@ -83,6 +83,10 @@ console.info(node.getMultiaddrs())
 $ npm i @ipshipyard/libp2p-auto-tls
 ```
 
+# API Docs
+
+- <https://ipshipyard.github.io/js-libp2p-auto-tls>
+
 # License
 
 Licensed under either of
