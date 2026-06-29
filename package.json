@@ -159,7 +159,7 @@
     "aegir": "^48.1.1",
     "datastore-core": "^11.0.2",
     "p-event": "^7.0.0",
-    "sinon": "^21.0.0",
+    "sinon": "^22.0.0",
     "sinon-ts": "^2.0.0"
   },
   "browser": {
