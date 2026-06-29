@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { TypedEventEmitter, start, stop } from '@libp2p/interface'
 import { defaultLogger } from '@libp2p/logger'
 import { multiaddr } from '@multiformats/multiaddr'
