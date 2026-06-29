@@ -155,7 +155,7 @@
   "devDependencies": {
     "@libp2p/logger": "^6.0.4",
     "@libp2p/peer-id": "^6.0.3",
-    "@types/sinon": "^17.0.3",
+    "@types/sinon": "^21.0.1",
     "aegir": "^48.1.1",
     "datastore-core": "^11.0.2",
     "p-event": "^7.0.0",
