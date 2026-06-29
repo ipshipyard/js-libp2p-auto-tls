@@ -1,3 +1,13 @@
+## [2.0.2](https://github.com/ipshipyard/js-libp2p-auto-tls/compare/v2.0.1...v2.0.2) (2026-06-29)
+
+### Trivial Changes
+
+* bump aegir from 47.0.22 to 47.0.26 ([#45](https://github.com/ipshipyard/js-libp2p-auto-tls/issues/45)) ([fdc2340](https://github.com/ipshipyard/js-libp2p-auto-tls/commit/fdc2340827c60a38f3e791930d27ef3fd5448370))
+
+### Dependencies
+
+* update all deps ([#49](https://github.com/ipshipyard/js-libp2p-auto-tls/issues/49)) ([4c630d8](https://github.com/ipshipyard/js-libp2p-auto-tls/commit/4c630d8f38cc41c6c91d8801eff9f8c96b6fe9da))
+
 ## [2.0.1](https://github.com/ipshipyard/js-libp2p-auto-tls/compare/v2.0.0...v2.0.1) (2025-10-03)
 
 ### Bug Fixes
