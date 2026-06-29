@@ -59,6 +59,7 @@
  * ```
  */
 
+import 'reflect-metadata'
 import { AutoTLS as AutoTLSClass } from './auto-tls.ts'
 import type { HTTP } from '@libp2p/http'
 import type { PeerId, PrivateKey, ComponentLogger, Libp2pEvents, TypedEventTarget, TLSCertificate, NodeInfo } from '@libp2p/interface'
